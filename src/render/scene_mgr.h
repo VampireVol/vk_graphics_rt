@@ -52,6 +52,7 @@ struct LoaderConfig
   bool build_acc_structs = false;
   bool build_acc_structs_while_loading_scene = false;
   bool instance_matrix_as_vertex_attribute = false;
+  bool instance_matrix_as_storage_buffer = false;
   bool debug_output = false;
   BVH_BUILDER_TYPE builder_type = BVH_BUILDER_TYPE::RTX;
   MATERIAL_FORMAT material_format = MATERIAL_FORMAT::METALLIC_ROUGHNESS;

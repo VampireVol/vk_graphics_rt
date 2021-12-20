@@ -40,9 +40,9 @@ int main()
   auto* window = initWindow(WIDTH, HEIGHT);
 
   initVulkanGLFW(app, window, VULKAN_DEVICE_ID);
-
-//  app->LoadScene("../resources/scenes/043_cornell_normals/statex_00001.xml");
+  
   app->LoadScene("../resources/scenes/buggy/Buggy.gltf");
+//  app->LoadScene("../resources/scenes/buster_drone/scene.gltf");
 
   bool showGUI = true;
   mainLoop(app, window, showGUI);

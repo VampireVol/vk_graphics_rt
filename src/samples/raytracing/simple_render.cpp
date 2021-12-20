@@ -5,6 +5,39 @@
 #include <vk_pipeline.h>
 #include <vk_buffers.h>
 
+void fillWriteDescriptorSetEntry(VkDescriptorSet set, VkWriteDescriptorSet& writeDS,
+  VkDescriptorBufferInfo* bufferInfo, VkBuffer buffer, int binding) {
+
+  bufferInfo->buffer = buffer;
+  bufferInfo->offset = 0;
+  bufferInfo->range = VK_WHOLE_SIZE;
+
+  writeDS = VkWriteDescriptorSet{};
+  writeDS.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  writeDS.dstSet = set;
+  writeDS.dstBinding = binding;
+  writeDS.descriptorCount = 1;
+  writeDS.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+  writeDS.pBufferInfo = bufferInfo;
+  writeDS.pImageInfo = nullptr;
+  writeDS.pTexelBufferView = nullptr;
+}
+
+void RayTracer_GPU::InitDescriptors(std::shared_ptr<SceneManager> sceneManager) 
+{
+  std::array<VkDescriptorBufferInfo, 6> descriptorBufferInfo;
+  std::array<VkWriteDescriptorSet, 6> writeDescriptorSet;
+
+  fillWriteDescriptorSetEntry(m_allGeneratedDS[0], writeDescriptorSet[0], &descriptorBufferInfo[0], sceneManager->GetVertexBuffer(), 3);
+  fillWriteDescriptorSetEntry(m_allGeneratedDS[0], writeDescriptorSet[1], &descriptorBufferInfo[1], sceneManager->GetIndexBuffer(), 4);
+  fillWriteDescriptorSetEntry(m_allGeneratedDS[0], writeDescriptorSet[2], &descriptorBufferInfo[2], sceneManager->GetMaterialIDsBuffer(), 5);
+  fillWriteDescriptorSetEntry(m_allGeneratedDS[0], writeDescriptorSet[3], &descriptorBufferInfo[3], sceneManager->GetMaterialsBuffer(), 6);
+  fillWriteDescriptorSetEntry(m_allGeneratedDS[0], writeDescriptorSet[4], &descriptorBufferInfo[4], sceneManager->GetInstanceMatBuffer(), 7);
+  fillWriteDescriptorSetEntry(m_allGeneratedDS[0], writeDescriptorSet[5], &descriptorBufferInfo[5], sceneManager->GetMeshInfoBuffer(), 8);
+
+  vkUpdateDescriptorSets(device, uint32_t(writeDescriptorSet.size()), writeDescriptorSet.data(), 0, NULL);
+}
+
 SimpleRender::SimpleRender(uint32_t a_width, uint32_t a_height) : m_width(a_width), m_height(a_height)
 {
 #ifdef NDEBUG
@@ -112,7 +145,8 @@ void SimpleRender::InitVulkan(const char** a_instanceExtensions, uint32_t a_inst
 
   LoaderConfig conf = {};
   conf.load_geometry = true;
-  conf.load_materials = MATERIAL_LOAD_MODE::NONE;
+  conf.load_materials = MATERIAL_LOAD_MODE::MATERIALS_ONLY;
+  conf.instance_matrix_as_storage_buffer = true;
   if(ENABLE_HARDWARE_RT)
   {
     conf.build_acc_structs = true;
@@ -687,10 +721,11 @@ void SimpleRender::SetupGUIElements()
     ImGui::Begin("Your render settings here");
     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f),"Press '1' for rasterization mode");
     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Press '2' for raytracing mode");
+    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "For change light source see common_generated.h");
     ImGui::NewLine();
 
-    ImGui::ColorEdit3("Meshes base color", m_uniforms.baseColor.M, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-    ImGui::SliderFloat3("Light source position", m_uniforms.lightPos.M, -10.f, 10.f);
+    ImGui::ColorEdit3("Meshes base color 1", m_uniforms.baseColor.M, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+    ImGui::SliderFloat3("Light source 1 position", m_uniforms.lightPos.M, -10.f, 10.f);
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 

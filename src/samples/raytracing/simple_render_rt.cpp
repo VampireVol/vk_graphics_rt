@@ -88,9 +88,9 @@ void SimpleRender::RayTraceCPU()
 
   m_pRayTracerCPU->UpdateView(m_cam.pos, m_inverseProjViewMatrix);
 #pragma omp parallel for default(none)
-  for (size_t j = 0; j < m_height; ++j)
+  for (int j = 0; j < m_height; ++j)
   {
-    for (size_t i = 0; i < m_width; ++i)
+    for (int i = 0; i < m_width; ++i)
     {
       m_pRayTracerCPU->CastSingleRay(i, j, m_raytracedImageData.data());
     }
@@ -117,6 +117,7 @@ void SimpleRender::RayTraceGPU()
 
     m_pRayTracerGPU->SetScene(tmp);
     m_pRayTracerGPU->SetVulkanInOutFor_CastSingleRay(m_genColorBuffer, 0);
+    m_pRayTracerGPU->InitDescriptors(m_pScnMgr);
     m_pRayTracerGPU->UpdateAll(m_pCopyHelper);
   }
 

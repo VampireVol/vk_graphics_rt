@@ -20,14 +20,61 @@ struct CRT_Hit
   uint geomId;    ///< use 4 most significant bits for geometry type; thay are zero for triangles 
   float    coords[4]; ///< custom intersection data; for triangles coords[0] and coords[1] stores baricentric coords (u,v)
 };
-const uint palette_size = 20;
-const uint m_palette[20] = {
+const uint palette_size = 5;
+const uint m_palette[5] = {
     0xffe6194b, 0xff3cb44b, 0xffffe119, 0xff0082c8,
-    0xfff58231, 0xff911eb4, 0xff46f0f0, 0xfff032e6,
+    0xfff58231/*, 0xff911eb4, 0xff46f0f0, 0xfff032e6,
     0xffd2f53c, 0xfffabebe, 0xff008080, 0xffe6beff,
     0xffaa6e28, 0xfffffac8, 0xff800000, 0xffaaffc3,
-    0xff808000, 0xffffd8b1, 0xff000080, 0xff808080
+    0xff808000, 0xffffd8b1, 0xff000080, 0xff808080*/
   };
+
+const float m_reflection[5] = { 0.1f, 0.75f, 0.0f, 0.0f, 0.0f };
+
+struct Light 
+{
+  vec4 pos;
+  uint color;
+  float intensity;
+};
+
+//For buggy
+const Light l1 = { {110.0f,110.0f,75.0f,1.0f}, 0xff000000, 100000.0f };
+const Light l2 = { {-60.0f,110.0f,70.0f,1.0f}, 0x0000ff00, 100000.0f };
+
+//buster_drone
+//const Light l1 = { {40.0f,10.0f,150.0f,1.0f}, 0xff000000, 100000.0f };
+//const Light l2 = { {40.0f,-40.0f,120.0f,1.0f}, 0x0000ff00, 100000.0f };
+const Light m_lights[2] = { l1, l2 };
+
+struct MaterialData_pbrMR
+{
+  vec4 baseColor;
+
+  float metallic;
+  float roughness;
+  int baseColorTexId;
+  int metallicRoughnessTexId;
+
+  vec3 emissionColor;
+  int emissionTexId;
+
+  int normalTexId;
+  int occlusionTexId;
+  float alphaCutoff;
+  int alphaMode;
+};
+
+struct MeshInfo
+{
+  uint indexOffset;
+  uint vertexOffset;
+};
+
+struct Vertex {
+  vec4 vertex;
+  vec4 tangent;
+};
 
 #include "include/RayTracer_ubo.h"
 
